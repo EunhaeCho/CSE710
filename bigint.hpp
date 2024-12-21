@@ -137,7 +137,7 @@ public:
             }
             else
             {
-                lhs.input = rhs.input.erase(0, 1);
+                lhs.input = lhs.input.erase(0, 1);
                 rhs -= lhs;
                 input = rhs.input;
             }
@@ -149,6 +149,11 @@ public:
     // Overloaded binary operator -=.
     bigint &operator-=(const bigint &other)
     {
+        bigint lhs;
+        bigint rhs;
+
+        lhs.input = input;
+        rhs.input = other.input;
         // Temporal variable for size
         std::int64_t size_small = 0;
         std::int64_t size_large = 0;
@@ -159,53 +164,86 @@ public:
         // Temporal variable for string
         std::string tmp_short = "0";
         std::string tmp_string = "0";
+        std::string other_tmp = "0";
         // Temporal variable for char
         char tmp_char1 = '0';
         char tmp_char2 = '0';
 
-        // Compare the string size and save it to size_small and size_large
-        if (std::size(input) < other.get_size())
+        if ((other.input[0] == '-' and input[0] == '-') or (other.input[0] != '-' and input[0] != '-'))
         {
-            tmp_short = input;
-            input = other.input;
-        }
-        else
-        {
-            tmp_short = other.input;
-        }
-
-        size_small = std::size(tmp_short);
-        size_large = std::size(input);
-
-        // Substract each char of the last string.
-        for (std::int64_t i = 0; i < size_small; ++i)
-        {
-            tmp_char1 = input[size_large - 1 - i];
-            tmp_char2 = tmp_short[size_small - 1 - i];
-            tmp_sub = (tmp_char1 - '0') - (tmp_char2 - '0') - tmp_integer;
-            if (tmp_sub < 0)
+            if (lhs.input[0] == '-')
             {
-                tmp_integer = 1;
+                // If they have negative signs, erase them.
+                input = input.erase(0, 1);
+                other_tmp = other_tmp.erase(0, 1);
+            }
+            // Compare the string size and save it to size_small and size_large
+            if (std::size(input) < other.get_size())
+            {
+                tmp_short = input;
+                input = other.input;
             }
             else
             {
-                tmp_integer = 0;
+                tmp_short = other.input;
             }
-            tmp_string = std::to_string(tmp_sub + tmp_integer * 10);
-            size_tmp_string = std::size(tmp_string);
-            input.replace(size_large - 1 - i, 1, std::string(1, tmp_string[size_tmp_string - 1]));
-            if (i == size_small - 1 and tmp_integer == 1)
+
+            size_small = std::size(tmp_short);
+            size_large = std::size(input);
+
+            // Substract each char of the last string.
+            for (std::int64_t i = 0; i < size_small; ++i)
             {
-                input.replace(size_large - 2 - i, 1, std::string(1, input[size_large - 2 - i] - 1));
+                tmp_char1 = input[size_large - 1 - i];
+                tmp_char2 = tmp_short[size_small - 1 - i];
+                tmp_sub = (tmp_char1 - '0') - (tmp_char2 - '0') - tmp_integer;
+                if (tmp_sub < 0)
+                {
+                    tmp_integer = 1;
+                }
+                else
+                {
+                    tmp_integer = 0;
+                }
+                tmp_string = std::to_string(tmp_sub + tmp_integer * 10);
+                size_tmp_string = std::size(tmp_string);
+                input.replace(size_large - 1 - i, 1, std::string(1, tmp_string[size_tmp_string - 1]));
+                if (i == size_small - 1 and tmp_integer == 1)
+                {
+                    input.replace(size_large - 2 - i, 1, std::string(1, input[size_large - 2 - i] - 1));
+                }
+            }
+            if (lhs.input[0] == '-')
+            {
+                input = '-' + input;
             }
         }
-
+        else
+        {
+            if (rhs.input[0] == '-')
+            {
+                rhs.input = rhs.input.erase(0, 1);
+                lhs += rhs;
+                input = lhs.input;
+            }
+            else
+            {
+                lhs.input = lhs.input.erase(0, 1);
+                rhs += lhs;
+                input = '-' + rhs.input;
+            }
+        }
         return *this;
     }
 
     // Overloaded binary operator *= to multiply bigint.
     bigint &operator*=(const bigint other)
     {
+        bigint lhs;
+        bigint rhs;
+
+        lhs.input = input;
+        rhs.input = other.input;
         // Temporal variable for size
         std::int64_t size_other = 0;
         std::int64_t size_input = 0;
@@ -213,6 +251,7 @@ public:
         std::int64_t tmp_integer = 0;
         std::int64_t tmp_mul = 0;
         // Temporal variable for string
+        std::string input_tmp = input;
         std::string other_tmp = other.input;
         std::string tmp_0 = "0";
         bigint tmp_short = 0;
@@ -223,119 +262,64 @@ public:
         char tmp_char2 = '0';
 
         // When input and other have same signs.
-        if ((other.input[0] == '-' and input[0] == '-') or (other.input[0] != '-' and input[0] != '-'))
+
+        if (lhs.input[0] == '-')
         {
-
-            if (input[0] == '-')
-            {
-                // If they have negative signs, erase them.
-                input = input.erase(0, 1);
+            // If they have negative signs, erase them.
+            input_tmp = input.erase(0, 1);
+            if (rhs.input[0] == '-')
                 other_tmp = other_tmp.erase(0, 1);
-            }
-            size_other = std::size(other_tmp);
-            size_input = std::size(input);
-            for (std::int64_t i = 0; i < size_input; ++i)
+        }
+        size_other = std::size(other_tmp);
+        size_input = std::size(input_tmp);
+        for (std::int64_t i = 0; i < size_input; ++i)
+        {
+            tmp_integer = 0;
+            tmp_short = other_tmp;
+            for (std::int64_t j = 0; j < size_other; ++j)
             {
-                tmp_integer = 0;
-                tmp_short = other_tmp;
-                for (std::int64_t j = 0; j < size_other; ++j)
+                tmp_char1 = other.input[size_other - 1 - j];
+                tmp_char2 = input_tmp[size_input - 1 - i];
+                tmp_mul = (tmp_char1 - '0') * (tmp_char2 - '0') + tmp_integer;
+                if (tmp_mul > 10)
                 {
-                    tmp_char1 = other.input[size_other - 1 - j];
-                    tmp_char2 = input[size_input - 1 - i];
-                    tmp_mul = (tmp_char1 - '0') * (tmp_char2 - '0') + tmp_integer;
-                    if (tmp_mul > 10)
-                    {
-                        tmp_integer = tmp_mul / 10;
-                        tmp_char0 = std::to_string(tmp_mul)[1];
-                    }
-                    else
-                    {
-                        tmp_integer = 0;
-                        tmp_char0 = std::to_string(tmp_mul)[0];
-                    }
-                    tmp_short.input[size_other - 1 - j] = tmp_char0;
-
-                    if (j == std::size(other_tmp) - 1 and tmp_integer != 0)
-                        tmp_short.input = std::to_string(tmp_integer) + tmp_short.input;
-                }
-
-                if (i == 0)
-                {
-                    tmp_ans = tmp_short;
+                    tmp_integer = tmp_mul / 10;
+                    tmp_char0 = std::to_string(tmp_mul)[1];
                 }
                 else
                 {
-                    tmp_0 = "";
-                    for (std::int64_t n = 0; n < i; n++)
-                    {
-                        tmp_0 = tmp_0 + "0";
-                    }
-
-                    tmp_short.input = tmp_short.input + tmp_0;
-                    tmp_ans += tmp_short;
+                    tmp_integer = 0;
+                    tmp_char0 = std::to_string(tmp_mul)[0];
                 }
-            }
-        }
+                tmp_short.input[size_other - 1 - j] = tmp_char0;
 
-        else
-        {
-            // When input and other have different signs.
-            // If they have negative signs, erase them.
-            if (input[0] == '-')
+                if (j == std::size(other_tmp) - 1 and tmp_integer != 0)
+                    tmp_short.input = std::to_string(tmp_integer) + tmp_short.input;
+            }
+
+            if (i == 0)
             {
-                input = input.erase(0, 1);
+                tmp_ans = tmp_short;
             }
             else
             {
-                std::string other_tmp = other.input;
-                other_tmp = other_tmp.erase(0, 1);
+                tmp_0 = "";
+                for (std::int64_t n = 0; n < i; n++)
+                {
+                    tmp_0 = tmp_0 + "0";
+                }
+
+                tmp_short.input = tmp_short.input + tmp_0;
+                tmp_ans += tmp_short;
             }
-
-            size_other = std::size(other_tmp);
-            size_input = std::size(input);
-            for (std::int64_t i = 0; i < size_input; ++i)
-            {
-                tmp_integer = 0;
-                tmp_short = other_tmp;
-                for (std::int64_t j = 0; j < size_other; ++j)
-                {
-                    tmp_char1 = other.input[size_other - 1 - j];
-                    tmp_char2 = input[size_input - 1 - i];
-                    tmp_mul = (tmp_char1 - '0') * (tmp_char2 - '0') + tmp_integer;
-                    if (tmp_mul > 10)
-                    {
-                        tmp_integer = tmp_mul / 10;
-                        tmp_char0 = std::to_string(tmp_mul)[1];
-                    }
-                    else
-                    {
-                        tmp_integer = 0;
-                        tmp_char0 = std::to_string(tmp_mul)[0];
-                    }
-                    tmp_short.input[size_other - 1 - j] = tmp_char0;
-
-                    if (j == std::size(other_tmp) - 1 and tmp_integer != 0)
-                        tmp_short.input = std::to_string(tmp_integer) + tmp_short.input;
-                }
-
-                if (i == 0)
-                {
-                    tmp_ans = tmp_short;
-                }
-                else
-                {
-                    tmp_0 = "";
-                    for (std::int64_t n = 0; n < i; n++)
-                    {
-                        tmp_0 = tmp_0 + "0";
-                    }
-
-                    tmp_short.input = tmp_short.input + tmp_0;
-                    tmp_ans += tmp_short;
-                }
-            }
-            input = '-' + tmp_ans.input;
         }
+        input_tmp = tmp_ans.input;
+        if (lhs.input[0] == '-' and rhs.input[0] != '-')
+            input_tmp = '-' + input_tmp;
+        else if (lhs.input[0] != '-' and rhs.input[0] == '-')
+            input_tmp = '-' + input_tmp;
+
+        input = input_tmp;
         return *this;
     }
 

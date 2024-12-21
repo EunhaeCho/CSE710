@@ -15,7 +15,7 @@ Therefore, when there is no input value, the private `std::string` field `input`
 The class overloads the following operators:
 
 * Addition (+ and +=)
-    The concept for the operations was designed to closely mimic the way humans perform calculations. For addition, the process starts from the least significant digit, adding one digit at a time. If the sum of the digits exceeds 10, a carry is applied to the next higher digit. For negative integers, if both numbers to be added are negative, their signs are removed, and addition is performed as described above. The resulting sum then has the negative sign reattached. However, in cases where a negative and a positive integer are added, the intention was to use a subtraction operation (to be defined later). This part has not yet been fully implemented.
+    The concept for the operations was designed to closely mimic the way humans perform calculations. For addition, the process starts from the least significant digit, adding one digit at a time. If the sum of the digits exceeds 10, a carry is applied to the next higher digit. For negative integers, if both numbers to be added are negative, their signs are removed, and addition is performed as described above. The resulting sum then has the negative sign reattached. However, in cases where a negative and a positive integer are added, the intention was to use a subtraction operation. This part has not yet been fully implemented.
     The `+=` operator was defined first, and the `+` operator was subsequently defined as applying the `+=` operation to the left-hand operand.
 
 * Subtraction (- and -=)
@@ -23,7 +23,7 @@ The class overloads the following operators:
     The `-=` operator was defined first, and the `-` operator was implemented by applying the `-=` operation to the left-hand operand.
 
 * Multiplication (* and *=)
-    For multiplication, a similar approach was taken. First, the process determines whether the signs of the two operands are the same or different. Starting with the least significant digit of the left-hand operand, each digit is multiplied by the digits of the right-hand operand from the least significant digit to the most significant digit. The partial products are then summed to compute the overall product. The process is repeated for all digits of the left-hand operand. If the signs of the operands differ, a `-` sign is added to the beginning of the result. Due to time constraints, the code has not been fully optimized, resulting in repeated sections of code.
+    For multiplication, a similar approach was taken. First, the process determines whether the signs of the two operands are the same or different. Starting with the least significant digit of the left-hand operand, each digit is multiplied by the digits of the right-hand operand from the least significant digit to the most significant digit. The partial products are then summed to compute the overall product. The process is repeated for all digits of the left-hand operand. If the signs of the operands differ, a `-` sign is added to the beginning of the result.
     The `*=` operator was defined first, and as before, the `*` operator was implemented by applying the `*=` operation to the left-hand operand and assigning the result.
 
 * Negation (unary -)
